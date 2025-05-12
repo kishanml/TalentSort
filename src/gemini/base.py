@@ -7,7 +7,10 @@ from .models import EvaluationResult,InterviewQuestions
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+#TODO : Will add this to streamlit secrets later. Dont copy it pls. 
+# GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+GEMINI_API_KEY="AIzaSyDcU_qZ1VbWOoRogappbV0NtDTn_xzhlOw"
+
 
 
 def evaluate_candidate(job_description, resume_str,additional_instruction="Evaluate this candidate !", system_prompt=score_evaluation_prompt) -> str:
