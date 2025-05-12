@@ -116,14 +116,14 @@ if submit_button:
                                additional_instruction=extra_prompt)
             
              # Generate interview questions
-            interview_questions = generate_interview_questions(
+            interview_questions_answers = generate_interview_questions(
                 job_description_input, resume_text
             )
             
             st.markdown("---")
             st.subheader("🎯 Evaluation Results")
 
-            score = eval_output.parsed.score
+            score = eval_output.parsed.Education_score + eval_output.parsed.Experience_score + eval_output.parsed.Required_Skills_score + eval_output.parsed.Responsibilities_score
             score_color_bg = "#333"
             score_text_color = "white"
             if score >= 65:
@@ -152,7 +152,7 @@ if submit_button:
             st.markdown("#### Detailed Feedback")
 
             with st.container(): 
-                feedback_text = eval_output.parsed.feedback
+                feedback_text = f"**Introduction**  \n{eval_output.parsed.Introduction}  \n**Education  (Score - {eval_output.parsed.Education_score}/20)**  \n{eval_output.parsed.Education_feedback}  \n**Experience  (Score - {eval_output.parsed.Experience_score}/35)**  \n{eval_output.parsed.Experience_feedback}  \n**Required Skills  (Score - {eval_output.parsed.Required_Skills_score}/35)**  \n{eval_output.parsed.Required_Skills_feedback}  \n**Responsibilities  (Score - {eval_output.parsed.Responsibilities_score}/20)**  \n{eval_output.parsed.Responsibilities_feedback}  \n\n**Strengths**  \n{eval_output.parsed.Strengths}  \n**Areas of Concern/Gaps**  \n{eval_output.parsed.Concerns}"
 
                 st.markdown(feedback_text)
 
@@ -160,8 +160,11 @@ if submit_button:
             st.markdown("")
 
             # --- Interview Questions ---
-            st.markdown("#### 💬 Suggested Interview Questions")
-            for idx, question in enumerate(interview_questions.parsed.questions, start=1):
-                st.markdown(f"**{idx}.** {question}")
+            st.markdown("#### 💬 Suggested Interview Questions & Answers")
+            for idx in range(0, len(interview_questions_answers.parsed.questions_answers), 2):
+                question = interview_questions_answers.parsed.questions_answers[idx]
+                answer = interview_questions_answers.parsed.questions_answers[idx + 1]
+                st.markdown(f"**{idx//2 + 1}. {question}**")
+                st.markdown(f"{answer}")
     else:
         st.warning("Please provide both a Job Description or upload a Candidate's Resume to proceed with the evaluation.")

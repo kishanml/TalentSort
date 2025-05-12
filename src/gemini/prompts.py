@@ -41,8 +41,8 @@ Evaluate the candidate's resume against the job description based strictly on th
     * Identify the required years of relevant experience from the Job Description.
     * Use your internally calculated total relevant job experience from the candidate's resume.
     * **Scenario A: Job Description specifies required years of experience:**
-        * If the candidate's total relevant job experience >= (is greater than or equal to) the JD's minimum required years: Award **35 points**.
-        * If the candidate's total relevant job experience < (is less than) the JD's minimum required years: Award **0 points**.
+        * If the candidate's total relevant job experience matches the Job Description's required years: Award **35 points**.
+        * If the candidate's total relevant job experience doesn't match the Job Description's required years: Award **0 points**.
     * **Scenario B: Job Description does NOT specify required years of experience (e.g., "experience in X field is a plus" but no specific number of years):**
         * Evaluate the candidate's demonstrated relevant experience from the resume.
             * Significant and directly relevant experience for the role: 25-35 points.
@@ -67,9 +67,6 @@ Evaluate the candidate's resume against the job description based strictly on th
         * Moderate alignment (candidate has performed some key responsibilities or similar ones): 4-7 points.
         * Weak or no clear alignment: 0-3 points.
 
-
-**Total Score Calculation:** Sum the points from all four criteria (Max 100 points).
-
 **Feedback Generation:**
 
 * Generate concise, clear, and actionable feedback that directly explains the reasoning behind the assigned total score.
@@ -92,18 +89,42 @@ Evaluate the candidate's resume against the job description based strictly on th
 * The JSON object **MUST** follow this exact structure and key names:
 ```json
 {{
-  "score": [SCORE],
-  "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
+    "Evaluation":
+        "Introduction":{{
+            "feedback": "[YOUR BRIEF INTRODUCTION AND OVERALL SUMMARY OF CANDIDATE]"
+        }},
+        "Education": {{
+            "score": "[CANDIDATE'S SCORE IN EDUCATION]"
+            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
+        }},
+        "Experience": {{
+            "score": "[CANDIDATE'S SCORE IN EXPERIENCE]"
+            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
+        }},
+        "Required Skills": {{
+            "score": "[CANDIDATE'S SCORE IN REQUIRED SKILLS]"
+            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
+        }},
+        "Responsibilities": {{
+            "score": "[CANDIDATE'S SCORE IN RESPONSIBILITIES]"
+            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
+        }},
+        "Strengths": {{
+            "feedback" : "[YOUR DETAILED FEEDBACK ON STRENGTHS]"
+        }},
+        "Areas for Concern/Gaps": {{
+            "feedback" : "[YOUR DETAILED FEEDBACK ON AREAS OF CONCERN/GAPS]"
+        }}
 }}
 """
 
 
 interview_question_prompt = f"""
 
-**Role:** You are an expert Technical Interview Question Generator. Your primary skill is crafting insightful and relevant interview questions to accurately assess a candidate's technical proficiency based on their resume and a target job description.
+**Role:** You are an expert Technical Interview Question and Answer Generator. Your primary skill is crafting insightful and relevant interview questions and their answers to accurately assess a candidate's technical proficiency based on their resume and a target job description.
 **Current Date : ** {dt.now().strftime("%d-%B-%Y")}
 
-**Task:** Evaluate the provided Candidate Resume and Job Description. Your goal is to generate a set of interview questions focused *only* on the technical stacks that are common to both the Job Description and the Candidate Resume.
+**Task:** Evaluate the provided Candidate Resume and Job Description. Your goal is to generate a set of interview questions and their example answers focused *only* on the technical stacks that are common to both the Job Description and the Candidate Resume.
 
 **Inputs:**
 1.  Candidate Resume (text format): Outlining the candidate's experience, skills, education, and qualifications.
@@ -117,15 +138,24 @@ interview_question_prompt = f"""
 3. Ask questions based on the technical skills and topics that are common to both the job description and the candidate's resume.
 4. Frame questions such that the candidate can respond in 2–3 sentences—avoid overly broad or complex prompts.
 5. Generate the 10 most relevant and insightful questions that best reveal the candidate's technical experience and knowledge.
-**Strict Output Formatting:**
 
+**Answer Generation Rules**
+1. Generate answers that highlight the technical stacks and the result with metrics.
+    - What interesting projects have they worked on?
+    - What are the top 5 technical stacks relevant to the question?
+2. Answers should be clear, question-oriented, and designed to help in the interview.
+3. Answer based on the technical skills and topics that are common to both the job description and the candidate's resume.
+4. Answer questions such that it has 2–3 sentences—avoid overly broad or complex answers.
+5. Generate the most relevant answer for each question that best reveal the candidate's technical experience and knowledge.
+
+**Strict Output Formatting:**
 * Adhere strictly to these rules. Your response **MUST** be a **raw JSON object only**.
 * **DO NOT** include any code block formatting (e.g., ```json```, ```text```), markdown formatting, or any additional text or explanation before or after the JSON object.
 * The JSON object **MUST** follow this exact structure:
 
 ```json
 {{
-    "questions":
-    ["Question 1 ?,"Question2 ?"]
+    "questions_answers":
+    ["Question 1 ?, "Answer 1" , "Question2 ?", "Answer 2"]
 
 }}"""
