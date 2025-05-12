@@ -1,10 +1,13 @@
 
+import os
+from dotenv import load_dotenv
 from google import genai
 from .prompts import score_evaluation_prompt,interview_question_prompt
 from .models import EvaluationResult,InterviewQuestions
 
-GEMINI_API_KEY="AIzaSyDcU_qZ1VbWOoRogappbV0NtDTn_xzhlOw"
+load_dotenv()
 
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
 
 def evaluate_candidate(job_description, resume_str,additional_instruction="Evaluate this candidate !", system_prompt=score_evaluation_prompt) -> str:

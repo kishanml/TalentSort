@@ -17,52 +17,83 @@ st.set_page_config(
     layout="wide",
 )
 
+theme_choice = st.sidebar.selectbox("Choose Theme", ["Dark", "Light"])
 
-st.markdown("""
+if theme_choice == "Dark":
+    bg_color = "#0E1117"
+    text_color = "white"
+    input_bg = "#262730"
+else:
+    bg_color = "white"
+    text_color = "black"
+    input_bg = "#f0f2f6"
+
+# --- Custom Styles ---
+st.markdown(f"""
 <style>
-.stApp {
-    color : white;
-}
-.stTextInput > label, .stFileUploader label, .stTextArea label {
+.stApp {{
+    background-color: {bg_color};
+    color : {text_color};
+}}
+.stTextInput > label, .stFileUploader label, .stTextArea label {{
     font-weight: bold;
-}
-.stButton>button {
-    color: white;
+    color: {text_color};
+}}
+.stButton>button {{
+    background-color: #1E88E5;
+    color: white !important;
     font-weight: bold;
     padding: 10px 20px;
-    border: 1px solid ;
+    border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
     justify-content: center;
     width: 50%;
-}
+    transition: background-color 0.3s ease;
+}}
+.stButton>button:hover {{
+    background-color: #1565C0;
+}}
 
+/* Form Submit Button Fix */
+button[kind="primary"] {{
+    background-color: #1E88E5 !important;
+    color: white !important;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}}
+button[kind="primary"]:hover {{
+    background-color: #1565C0 !important;
+}}
 
-/* Style for the main title */
-h1 {
-    color: #1E88E5; /* Blue color for title */
+h1 {{
+    color: #1E88E5;
     text-align: center;
     margin-bottom: 20px;
-}
-/* Style for subheaders/section titles */
-h2 {
+}}
+h2 {{
     margin-top: 20px;
     margin-bottom: 10px;
-    border-bottom: 2px solid #1E88E5; /* Underline subheaders */
+    border-bottom: 2px solid #1E88E5;
     padding-bottom: 5px;
-}
-/* Style for input areas */
-.stTextArea, .stFileUploader, .stTextInput {
+}}
+.stTextArea, .stFileUploader, .stTextInput {{
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #cccccc;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
-    margin-bottom: 15px; /* Add space below inputs */
-}
-
+    background-color: {input_bg};
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}}
 </style>
-""", unsafe_allow_html=True) 
+""", unsafe_allow_html=True)
 
 
 st.title('TalentSort')
@@ -119,6 +150,7 @@ if submit_button:
             interview_questions_answers = generate_interview_questions(
                 job_description_input, resume_text
             )
+            # st.write(interview_questions_answers.parsed.questions_answers)
             
             st.markdown("---")
             st.subheader("🎯 Evaluation Results")
@@ -152,7 +184,7 @@ if submit_button:
             st.markdown("#### Detailed Feedback")
 
             with st.container(): 
-                feedback_text = f"**Introduction**  \n{eval_output.parsed.Introduction}  \n**Education  (Score - {eval_output.parsed.Education_score}/20)**  \n{eval_output.parsed.Education_feedback}  \n**Experience  (Score - {eval_output.parsed.Experience_score}/35)**  \n{eval_output.parsed.Experience_feedback}  \n**Required Skills  (Score - {eval_output.parsed.Required_Skills_score}/35)**  \n{eval_output.parsed.Required_Skills_feedback}  \n**Responsibilities  (Score - {eval_output.parsed.Responsibilities_score}/20)**  \n{eval_output.parsed.Responsibilities_feedback}  \n\n**Strengths**  \n{eval_output.parsed.Strengths}  \n**Areas of Concern/Gaps**  \n{eval_output.parsed.Concerns}"
+                feedback_text = f"**Introduction**  \n{eval_output.parsed.Introduction}  \n**Education  (Score - {eval_output.parsed.Education_score}/20)**  \n{eval_output.parsed.Education_feedback}  \n**Experience  (Score - {eval_output.parsed.Experience_score}/35)**  \n{eval_output.parsed.Experience_feedback}  \n**Required Skills  (Score - {eval_output.parsed.Required_Skills_score}/35)**  \n{eval_output.parsed.Required_Skills_feedback}  \n**Responsibilities  (Score - {eval_output.parsed.Responsibilities_score}/10)**  \n{eval_output.parsed.Responsibilities_feedback}  \n\n**Strengths**  \n{eval_output.parsed.Strengths}  \n**Areas of Concern/Gaps**  \n{eval_output.parsed.Concerns}"
 
                 st.markdown(feedback_text)
 

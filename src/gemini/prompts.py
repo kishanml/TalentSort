@@ -21,23 +21,20 @@ Use these parsed and calculated values explicitly in the evaluation criteria bel
 
 Evaluate the candidate's resume against the job description based strictly on the following factors and scoring distribution:
 
-1.  **Education and Qualifications Match (20 points total):**
-    * **Alignment with JD's Educational Requirements (15 points):**
+1.  **Education (20 points total):**
+
         * Assess if the candidate's educational background (degrees, certifications) meets the *minimum* educational qualifications specified in the JD. If the JD mentions required fields of study, consider this.
-            * Meets all minimum educational requirements: Up to 10 points.
-            * Partially meets or does not meet minimum requirements: 0-5 points.
-        * If the candidate meets the minimum requirements, assess if they also meet any *preferred* educational qualifications specified in the JD.
-            * Meets preferred educational qualifications: Additional 5 points.
-            * Does not meet preferred (or no preferred qualifications listed): 0 additional points for this part.
-        * If the JD does not specify any educational qualifications, award 7 points for this sub-section (Alignment with JD's Educational Requirements).
-    * **Academic Performance (if available) (5 points):**
+            * Meets all minimum educational requirements: Up to 15 points.
+            * Partially meets or does not meet minimum requirements: 0-10 points.
+
         * If the resume mentions academic scores (CGPA, percentage, grades), evaluate their strength.
             * Excellent/Very Good scores: 5 points.
-            * Good/Average scores: 2-3 points.
+            * Good/Average scores : 2-3 points. 
             * Below Average scores or insufficient information to judge: 1 point.
+                
         * If no scores are mentioned in the resume: 0 points for this sub-criterion.
 
-2.  **Experience Match (35 points total):**
+2.  **Experience (35 points total):**
     * Identify the required years of relevant experience from the Job Description.
     * Use your internally calculated total relevant job experience from the candidate's resume.
     * **Scenario A: Job Description specifies required years of experience:**
@@ -50,7 +47,7 @@ Evaluate the candidate's resume against the job description based strictly on th
             * Some, but limited, relevant experience: 5-14 points.
             * No clear relevant experience: 0 points.
 
-3.  **Required Skills Match (35 points total):**
+3.  **Required Skills  (35 points total):**
     * Identify all skills explicitly listed as *required* in the Job Description.
     * Compare these required skills with the skills listed and demonstrated in the Candidate Resume.
     * Score based on the proportion and depth of match:
@@ -60,7 +57,7 @@ Evaluate the candidate's resume against the job description based strictly on th
         * Less than half or very few required skills are present: 0-9 points.
     * Consider both explicitly listed skills and skills implied by project descriptions or experience.
 
-4.  **Alignment with Responsibilities (10 points total):**
+4.  **Responsibilities (10 points total):**
     * Review the key duties and responsibilities listed in the Job Description.
     * Assess if the candidate's past roles, experiences, and accomplishments described in the resume suggest they have performed similar tasks and can handle the described responsibilities.
         * Strong alignment (candidate has clearly performed most key responsibilities): 8-10 points.
@@ -124,7 +121,7 @@ interview_question_prompt = f"""
 **Role:** You are an expert Technical Interview Question and Answer Generator. Your primary skill is crafting insightful and relevant interview questions and their answers to accurately assess a candidate's technical proficiency based on their resume and a target job description.
 **Current Date : ** {dt.now().strftime("%d-%B-%Y")}
 
-**Task:** Evaluate the provided Candidate Resume and Job Description. Your goal is to generate a set of interview questions and their example answers focused *only* on the technical stacks that are common to both the Job Description and the Candidate Resume.
+**Task:** Evaluate the provided Candidate Resume and Job Description. Your goal is to generate a set of interview questions-answer pairs and their example answers focused *only* on the technical stacks that are common to both the Job Description and the Candidate Resume.
 
 **Inputs:**
 1.  Candidate Resume (text format): Outlining the candidate's experience, skills, education, and qualifications.
@@ -140,9 +137,7 @@ interview_question_prompt = f"""
 5. Generate the 10 most relevant and insightful questions that best reveal the candidate's technical experience and knowledge.
 
 **Answer Generation Rules**
-1. Generate answers that highlight the technical stacks and the result with metrics.
-    - What interesting projects have they worked on?
-    - What are the top 5 technical stacks relevant to the question?
+1. Generate answers based on the question created from candidate's resume.
 2. Answers should be clear, question-oriented, and designed to help in the interview.
 3. Answer based on the technical skills and topics that are common to both the job description and the candidate's resume.
 4. Answer questions such that it has 2–3 sentences—avoid overly broad or complex answers.
@@ -156,6 +151,6 @@ interview_question_prompt = f"""
 ```json
 {{
     "questions_answers":
-    ["Question 1 ?, "Answer 1" , "Question2 ?", "Answer 2"]
+    ["Question 1", "Answer of Question 1" , "Question 2", "Answer of Question 2"]
 
 }}"""
