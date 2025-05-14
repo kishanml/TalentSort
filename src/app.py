@@ -1,12 +1,12 @@
 import os
 import shutil
 import streamlit as st
-from services import get_text_from_resume
+from services import ResumeParser
 from gemini import evaluate_candidate,generate_interview_questions
 
 
 SAVE_FOLDER_DIR = "resumes"
-VIDEO_UPLOAD_PATH = None
+resume_upload_path = None
 
 if os.path.exists(SAVE_FOLDER_DIR):
     shutil.rmtree(SAVE_FOLDER_DIR)
@@ -118,18 +118,33 @@ with st.form("talent_evaluation_form"):
             help="Upload the candidate's resume file (PDF, Word, or TXT)."
         )
         if resume_input:
-            VIDEO_UPLOAD_PATH = os.path.join(SAVE_FOLDER_DIR,resume_input.name)
-            with open(VIDEO_UPLOAD_PATH, mode='wb') as f:
+            resume_upload_path = os.path.join(SAVE_FOLDER_DIR,resume_input.name)
+            with open(resume_upload_path, mode='wb') as f:
                 f.write(resume_input.read())  
+
+       
+
 
 
     with col3:
-        extra_prompt = st.text_area(
-            label='🧠 Additional Instructions (Optional)', 
-            height=350, 
-            value="Evaluate this candidate !",
-            help="e.g., 'Prioritize cloud computing experience', 'Look for leadership examples'."
+
+        scoring_extra_prompt = st.text_area(
+            label="Specific focus for evaluation (Optional):",
+            height=120,
+            value="", 
+            placeholder="e.g., 'Prioritize cloud computing (AWS/Azure) experience', 'Emphasize leadership examples and project management skills', 'Assess Python proficiency'.",
+            help="Provide any specific keywords, skills, or attributes to emphasize during the resume and JD matching."
         )
+
+        interview_questions_extra_prompt = st.text_area(
+            label="Guidelines for interview questions (Optional):",
+            height=120,
+            value="", 
+            placeholder="e.g., 'Generate 10 technical questions based on resume', 'Create 3 technical questions about data structures in Python'",
+            help="Specify the type, number, or focus areas for the interview questions you want to generate."
+        )
+
+       
 
     # --- Submit Button ---
     st.markdown("---") 
@@ -141,26 +156,26 @@ with st.form("talent_evaluation_form"):
 if submit_button:
     if job_description_input and resume_input:
         with st.spinner("Evaluating candidate talent..."):
-            resume_text = get_text_from_resume(VIDEO_UPLOAD_PATH)
+            resume_text = ResumeParser.extract_text_from_resume(resume_upload_path)
             eval_output = evaluate_candidate(job_description=job_description_input,\
                                resume_str=resume_text,
-                               additional_instruction=extra_prompt)
+                               additional_instruction=scoring_extra_prompt)
             
              # Generate interview questions
             interview_questions_answers = generate_interview_questions(
-                job_description_input, resume_text
+                job_description_input, resume_text,additional_instruction=interview_questions_extra_prompt
             )
             # st.write(interview_questions_answers.parsed.questions_answers)
             
             st.markdown("---")
             st.subheader("🎯 Evaluation Results")
 
-            score = eval_output.parsed.Education_score + eval_output.parsed.Experience_score + eval_output.parsed.Required_Skills_score + eval_output.parsed.Responsibilities_score
+            score = eval_output.parsed.required_skills_score + eval_output.parsed.responsibilities_score + eval_output.parsed.overall_relevance_score 
             score_color_bg = "#333"
             score_text_color = "white"
-            if score >= 65:
+            if score >= 80:
                 score_color_bg = "#4CAF50" 
-            elif score >= 50:
+            elif score >= 60:
                 score_color_bg = "#FF9800" 
             else:
                 score_color_bg = "#F44336"
@@ -184,9 +199,48 @@ if submit_button:
             st.markdown("#### Detailed Feedback")
 
             with st.container(): 
-                feedback_text = f"**Introduction**  \n{eval_output.parsed.Introduction}  \n**Education  (Score - {eval_output.parsed.Education_score}/20)**  \n{eval_output.parsed.Education_feedback}  \n**Experience  (Score - {eval_output.parsed.Experience_score}/35)**  \n{eval_output.parsed.Experience_feedback}  \n**Required Skills  (Score - {eval_output.parsed.Required_Skills_score}/35)**  \n{eval_output.parsed.Required_Skills_feedback}  \n**Responsibilities  (Score - {eval_output.parsed.Responsibilities_score}/10)**  \n{eval_output.parsed.Responsibilities_feedback}  \n\n**Strengths**  \n{eval_output.parsed.Strengths}  \n**Areas of Concern/Gaps**  \n{eval_output.parsed.Concerns}"
+                # feedback_text = f"**Introduction**  \n{eval_output.parsed.Introduction}  \n**Education  (Score - {eval_output.parsed.Education_score}/20)**  \n{eval_output.parsed.Education_feedback}  \n**Experience  (Score - {eval_output.parsed.Experience_score}/35)**  \n{eval_output.parsed.Experience_feedback}  \n**Required Skills  (Score - {eval_output.parsed.Required_Skills_score}/35)**  \n{eval_output.parsed.Required_Skills_feedback}  \n**Responsibilities  (Score - {eval_output.parsed.Responsibilities_score}/10)**  \n{eval_output.parsed.Responsibilities_feedback}  \n\n**Strengths**  \n{eval_output.parsed.Strengths}  \n**Areas of Concern/Gaps**  \n{eval_output.parsed.Concerns}"
+                
+                # Introduction
+                st.markdown("### Introduction")
+                st.markdown(f"{eval_output.parsed.evaluation_summary or 'No summary available.'}")
 
-                st.markdown(feedback_text)
+                # Educational Details
+                st.markdown("### Educational Details")
+                if eval_output.parsed.extracted_education:
+                    for edu_item in eval_output.parsed.extracted_education:
+                        st.markdown(f"- {edu_item}")
+                else:
+                    st.markdown("_No education details found._")
+
+                # Experience Details
+                st.markdown("### Experience Details")
+                if eval_output.parsed.extracted_experience:
+                    for exp_item in eval_output.parsed.extracted_experience:
+                        st.markdown(f"- {exp_item}")
+                else:
+                    st.markdown("_No experience details found._")
+
+                # Required Skills
+                st.markdown(f"### Required Skills (Score: {eval_output.parsed.required_skills_score}/50)")
+                st.markdown(f"{eval_output.parsed.required_skills_feedback or 'No feedback provided.'}")
+
+                # Responsibilities
+                st.markdown(f"### Responsibilities (Score: {eval_output.parsed.responsibilities_score}/40)")
+                st.markdown(f"{eval_output.parsed.responsibilities_feedback or 'No feedback provided.'}")
+
+                # Overall Profile Relevance
+                st.markdown(f"### Overall Profile Relevance (Score: {eval_output.parsed.overall_relevance_score}/10)")
+                st.markdown(f"{eval_output.parsed.overall_relevance_feedback or 'No feedback provided.'}")
+
+                # Strengths
+                st.markdown("### Strengths")
+                st.markdown(f"{eval_output.parsed.strengths or 'No strengths mentioned.'}")
+
+                # Areas of Concern
+                st.markdown("### Areas of Concern")
+                st.markdown(f"{eval_output.parsed.areas_for_concern or 'No concerns found.'}")
+
 
             # interview_questions = generate_interview_questions(job_description_input,resume_text)
             st.markdown("")

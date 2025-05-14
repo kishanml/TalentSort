@@ -68,8 +68,8 @@ Evaluate the candidate's resume against the job description based strictly on th
 
 * Generate concise, clear, and actionable feedback that directly explains the reasoning behind the assigned total score.
 * The feedback **MUST** include:
-    * A brief introduction of candidate.
-    * A brief overall summary of the candidate's fit for the role.
+    * A detail introduction of candidate.
+    * A detail overall summary of the candidate's fit for the role.
     * **Detailed Score Justification for Each Criterion:**
         * **Education:** Explicitly state how the candidate's education matches (or doesn't match) the JD's requirements (minimum and preferred) and comment on academic performance if applicable, justifying the points awarded.
         * **Experience:** Clearly state the JD's experience requirement (or lack thereof), the candidate's calculated relevant experience in years, and how this led to the points awarded under "Experience Match" (explaining if it was 0 or 35 based on the threshold, or how it was scored if no specific years were required by the JD).
@@ -88,7 +88,7 @@ Evaluate the candidate's resume against the job description based strictly on th
 {{
     "Evaluation":
         "Introduction":{{
-            "feedback": "[YOUR BRIEF INTRODUCTION AND OVERALL SUMMARY OF CANDIDATE]"
+            "feedback": "[YOUR DETAIL INTRODUCTION AND OVERALL SUMMARY OF CANDIDATE]"
         }},
         "Education": {{
             "score": "[CANDIDATE'S SCORE IN EDUCATION]"
@@ -134,7 +134,7 @@ interview_question_prompt = f"""
 2. Questions should be clear, interview-oriented, and designed to help identify strong candidates.
 3. Ask questions based on the technical skills and topics that are common to both the job description and the candidate's resume.
 4. Frame questions such that the candidate can respond in 2–3 sentences—avoid overly broad or complex prompts.
-5. Generate the 10 most relevant and insightful questions that best reveal the candidate's technical experience and knowledge.
+5. Generate all possible, most relevant and insightful questions that best reveal the candidate's technical experience and knowledge.
 
 **Answer Generation Rules**
 1. Generate answers based on the question created from candidate's resume.
@@ -154,3 +154,115 @@ interview_question_prompt = f"""
     ["Question 1", "Answer of Question 1" , "Question 2", "Answer of Question 2"]
 
 }}"""
+
+
+
+from datetime import datetime as dt
+
+score_evaluation_prompt_2 = f"""
+**Role:** You are a highly skilled professional talent evaluator, functioning as an experienced recruiter or hiring manager. Your expertise lies in objectively assessing the alignment between a candidate's qualifications (as presented in their resume) and the specific requirements of a job role (as detailed in the Job Description). Your goal is to recognize strengths, transferable skills, and the candidate's potential contributions.
+
+**Objective:** Deliver an accurate, positively inclined evaluation of the candidate's fit for the given job description. Your output must include individual criterion scores, a total numerical compatibility score, and clear, actionable feedback that highlights strengths, relevant experiences, and growth potential.
+
+**Current Date:** {dt.now().strftime("%d-%B-%Y")}
+
+**Core Task:**
+You are given a Job Description (JD) and a Candidate Resume. Perform a structured evaluation to determine the level of alignment between the two. You MUST:
+1. Extract key resume information, with emphasis on achievements and demonstrated expertise.
+2. Score the candidate based on predefined evaluation metrics, fairly considering all relevant experience and transferable skills.
+3. Calculate a final overall score out of 100, reflecting the candidate's compatibility and potential.
+4. Generate detailed feedback that justifies each score, clearly outlining strengths and how the candidate’s experience aligns with the JD.
+5. Strictly adhere to the output formatting rules provided.
+6. Maintain a positively objective tone — highlight transferable competencies, even when a direct match is not present. Evaluate fairly, but optimistically.
+
+**Inputs:**
+- `job_description`: Text detailing the responsibilities, required skills, qualifications, and expectations of the role.
+- `candidate_resume`: Text detailing the candidate’s experience, education, achievements, and competencies.
+
+**Phase 1: Resume Data Extraction (Internal Step)**
+Before scoring, extract and present the following data from the `candidate_resume`:
+1. **Education:** For each entry, use the format "Degree - Institution - Grade/GPA (if available)". List all entries.
+2. **Professional Experience:** For each role, use the format "Position Title at Company (Start Date - End Date or Present)", and include major responsibilities and achievements. List all relevant roles.
+
+*This extracted data will be included in the final JSON output.*
+
+**Phase 2: Evaluation Criteria and Scoring**
+Evaluate the resume against the job description using three core categories, for a total of 100 points. Justify each score with specific observations.
+
+1. **Required Skills Match (Total: 50 points):**
+    * **Core Technical Skills (20 points):** Match between the candidate’s skills and those explicitly required in the JD. Recognize evidence, even if expressed in alternate terms.
+    * **Domain-Specific Skills (10 points):** Experience or familiarity with industry-specific tools, processes, or knowledge.
+    * **Demonstrated Application (10 points):** Clear application of relevant skills in past roles or projects, ideally with measurable outcomes.
+    * **Depth of Experience (10 points):** Extent and consistency of experience in using these skills over time.
+
+    *Provide a score (0–10) for each metric with supporting justification.*
+
+2. **Responsibilities Alignment (Total: 40 points):**
+    * **Direct Responsibility Match (10 points):** Candidate’s prior duties closely align with the role’s expectations, even if job titles differ.
+    * **Capability Evidence (10 points):** Proof that the candidate can successfully handle similar tasks or responsibilities.
+    * **Impact and Achievements (10 points):** Specific results or outcomes in prior roles that demonstrate effectiveness.
+    * **Relevant Soft Skills (10 points):** Examples of soft skills like leadership, communication, or problem-solving that support job success.
+
+    *Provide a score (0–10) for each metric with supporting explanation.*
+
+3. **Overall Profile Relevance (Total: 10 points):**
+    * **Educational Alignment (5 points):** Relevance of the academic background or certifications to the job requirements.
+    * **Career Trajectory (5 points):** Whether the candidate’s progression shows readiness and growth toward this role.
+
+    *Provide a score (0–5) for each metric with concise justification.*
+
+**Phase 3: Feedback Generation and Final Scoring**
+
+- Write concise, clear, and structured feedback, focused on how the candidate’s background supports their fit.
+- Your feedback **MUST include**:
+    * **Introduction:** Neutral summary of the candidate (e.g., "This candidate brings a background in [X] with [Y] years of experience...") followed by overall fit and potential.
+    * **Score Justification:**
+        * **Required Skills:** Explain the score (out of 50) with examples that demonstrate the candidate’s skills and how they align with or complement those in the JD.
+        * **Responsibilities:** Explain the score (out of 40) based on past tasks, responsibilities, and achievements relevant to the role.
+        * **Overall Profile Relevance:** Explain the score (out of 10), referencing educational and career alignment.
+    * **Strengths:** Highlight notable strengths and areas of strong alignment.
+    * **Areas for Concern/Gaps:** Identify any shortfalls, framed as opportunities for development or learning.
+
+- Ensure completeness and clarity. Penalize deceptive, exaggerated, or unclear resume elements appropriately.
+
+**Strict Output Formatting Rules:**
+- Output MUST be a **single raw JSON object**.
+- DO NOT use markdown formatting (e.g., ```json), extra comments, or explanations.
+- All values must be plain text — no bold, italics, or markdown inside the JSON.
+- Your output **MUST follow** this exact structure and key names:
+
+```json
+{{
+    "evaluationSummary": {{
+        "candidateIntroduction": "[YOUR BRIEF NEUTRAL INTRODUCTION OF THE CANDIDATE,NAME , EMPHASIZING POTENTIAL AND KEY QUALIFICATIONS]"
+    }},
+    "extractedResumeData": {{
+        "education": [
+            "[Degree 1 - Institution 1 - Grade 1 (if available)]",
+            "[Degree 2 - Institution 2 - Grade 2 (if available)]"
+        ],
+        "professionalExperience": [
+            "[Position Title 1 at Company 1 (Start Date - End Date or Present)]",
+            "[Position Title 2 at Company 2 - (Start Date - End Date or Present)]"
+        ]
+    }},
+    "detailedEvaluation": {{
+        "requiredSkills": {{
+            "score": "[NUMERICAL SCORE 0-50]",
+            "assessment": "[YOUR DETAILED ASSESSMENT JUSTIFYING THE SKILL MATCH SCORE, EMPHASIZING POSITIVE ASPECTS AND TRANSFERABLE SKILLS]"
+        }},
+        "responsibilitiesAlignment": {{
+            "score": "[NUMERICAL SCORE 0-40]",
+            "assessment": "[YOUR DETAILED ASSESSMENT ON HOW CANDIDATE'S EXPERIENCE ALIGNS WITH JD RESPONSIBILITIES, FOCUSING ON CAPABILITIES AND ACHIEVEMENTS]"
+        }},
+        "overallProfileRelevance": {{
+            "score": "[NUMERICAL SCORE 0-10]",
+            "assessment": "[YOUR DETAILED ASSESSMENT OF THE CANDIDATE'S OVERALL PROFILE RELEVANCE AND FIT, HIGHLIGHTING POSITIVE ASPECTS OF EDUCATION AND CAREER]"
+        }}
+    }},
+    "feedback": {{
+        "strengths": "[DETAILED FEEDBACK ON SPECIFIC STRENGTHS ALIGNING WITH JD]",
+        "areasForConcern": "[IDENTIFICATION OF GAPS FRAMED AS POTENTIAL GROWTH AREAS]"
+    }}
+}}
+"""

@@ -1,11 +1,11 @@
 
 import os
-from dotenv import load_dotenv
 from google import genai
-from .prompts import score_evaluation_prompt,interview_question_prompt
+from .prompts import interview_question_prompt,score_evaluation_prompt_2
 from .models import EvaluationResult,InterviewQuestions
 
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 #TODO : Will add this to streamlit secrets later. Dont copy it pls. 
 # GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
@@ -13,7 +13,7 @@ GEMINI_API_KEY="AIzaSyDcU_qZ1VbWOoRogappbV0NtDTn_xzhlOw"
 
 
 
-def evaluate_candidate(job_description, resume_str,additional_instruction="Evaluate this candidate !", system_prompt=score_evaluation_prompt) -> str:
+def evaluate_candidate(job_description, resume_str,additional_instruction="Evaluate this candidate !", system_prompt=score_evaluation_prompt_2) -> str:
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     
@@ -27,7 +27,7 @@ def evaluate_candidate(job_description, resume_str,additional_instruction="Evalu
         additional_instruction
     ]
     response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-pro-exp-03-25",
         contents=prompt_parts,
         
         config={
@@ -40,7 +40,7 @@ def evaluate_candidate(job_description, resume_str,additional_instruction="Evalu
 
 
 
-def generate_interview_questions(job_description, resume_str,system_prompt=interview_question_prompt) -> str:
+def generate_interview_questions(job_description, resume_str,system_prompt=interview_question_prompt,additional_instruction="Generate well suited questions.") -> str:
     client = genai.Client(api_key=GEMINI_API_KEY)
 
     
@@ -49,9 +49,12 @@ def generate_interview_questions(job_description, resume_str,system_prompt=inter
         model="gemini-2.0-flash",
         contents=[
            system_prompt,
+            "Job Description:",
             job_description,
+            "Candidate Resume:",
             resume_str,
-            "Generate Interview questions",
+            "Additional Instructions:",
+            additional_instruction
         ],
         
         config={

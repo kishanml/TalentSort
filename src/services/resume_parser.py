@@ -10,7 +10,6 @@ class ResumeParser():
     def __init__(self) -> None:
         self.terminal_tags = ["li", "a", "img", "p", "h1", "h2", "h3", "h4", "h5", "h6", "br", "div", "span"]
 
-
     @staticmethod
     def extract_html_from_resume( file_path : str , save_path : str = "temp" ):
 
@@ -191,7 +190,16 @@ class ResumeParser():
 
         return text        
         
-        
+    @staticmethod
+    def extract_text_from_resume( file_path : str ):
+
+        full_text = ""
+        document = fitz.open(file_path)
+        for i,page in enumerate(document):
+            text = page.get_text()
+            full_text+=text+'\m'
+        return full_text    
+            
     def get_parsed_text_from_html(self, html_file_path : str ):
         
         html_tree = etree.parse(html_file_path)
