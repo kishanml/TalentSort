@@ -27,7 +27,7 @@ def evaluate_candidate(job_description, resume_str,additional_instruction="Evalu
         additional_instruction
     ]
     response = client.models.generate_content(
-        model="gemini-2.5-pro-exp-03-25",
+        model="gemini-2.0-flash",
         contents=prompt_parts,
         
         config={

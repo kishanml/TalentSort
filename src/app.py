@@ -122,7 +122,7 @@ with st.form("talent_evaluation_form"):
             with open(resume_upload_path, mode='wb') as f:
                 f.write(resume_input.read())  
 
-       
+        suggest_ques = st.toggle(label= "Suggest interview questions", help="Switch it ON to get relevant interview questions and answers to assess the candidate's technical proficiency.")
 
 
 
@@ -161,11 +161,12 @@ if submit_button:
                                resume_str=resume_text,
                                additional_instruction=scoring_extra_prompt)
             
-             # Generate interview questions
-            interview_questions_answers = generate_interview_questions(
-                job_description_input, resume_text,additional_instruction=interview_questions_extra_prompt
-            )
-            # st.write(interview_questions_answers.parsed.questions_answers)
+            if suggest_ques:
+                # Generate interview questions
+                interview_questions_answers = generate_interview_questions(
+                    job_description_input, resume_text,additional_instruction=interview_questions_extra_prompt
+                )
+                # st.write(interview_questions_answers.parsed.questions_answers)
             
             st.markdown("---")
             st.subheader("🎯 Evaluation Results")
@@ -244,13 +245,13 @@ if submit_button:
 
             # interview_questions = generate_interview_questions(job_description_input,resume_text)
             st.markdown("")
-
-            # --- Interview Questions ---
-            st.markdown("#### 💬 Suggested Interview Questions & Answers")
-            for idx in range(0, len(interview_questions_answers.parsed.questions_answers), 2):
-                question = interview_questions_answers.parsed.questions_answers[idx]
-                answer = interview_questions_answers.parsed.questions_answers[idx + 1]
-                st.markdown(f"**{idx//2 + 1}. {question}**")
-                st.markdown(f"{answer}")
+            if suggest_ques:
+                # --- Interview Questions ---
+                st.markdown("#### 💬 Suggested Interview Questions & Answers")
+                for idx in range(0, len(interview_questions_answers.parsed.questions_answers), 2):
+                    question = interview_questions_answers.parsed.questions_answers[idx]
+                    answer = interview_questions_answers.parsed.questions_answers[idx + 1]
+                    st.markdown(f"**{idx//2 + 1}. {question}**")
+                    st.markdown(f"{answer}")
     else:
         st.warning("Please provide both a Job Description or upload a Candidate's Resume to proceed with the evaluation.")
