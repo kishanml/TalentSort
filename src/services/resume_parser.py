@@ -213,3 +213,6 @@ class ResumeParser():
         
 
         
+if __name__ == "__main__":
+    resume_text = ResumeParser.extract_text_from_resume("../resumes/applicationForm_16217910.pdf")
+    print(resume_text)
