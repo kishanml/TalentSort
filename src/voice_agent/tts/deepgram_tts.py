@@ -11,18 +11,18 @@ logger = logging.getLogger(__name__)
 
 class DeepgramRTTTS:
     """
-    Deepgram's Text-To-Speech client
+    Deepgram's Text-To-Speech Component
     """
     def __init__(self, cfg: dict = None, twilio_callback=None):
         self._api_key         = os.getenv("DEEPGRAM_API_KEY")
         self._cfg             = cfg                                             # Deepgram TTS configuration 
-        self.validate_reqs()                                                    # Validate all required vars
+        self._validate_reqs()                                                    # Validate all required vars
         self.tts_connection   = None                                            # TTS connection obj
         self.options          = SpeakWSOptions(**self._cfg)                     # Text-2-Speech Options
         self.twilio_callback  = twilio_callback                                 # Twilio callback for sending speech 2 phone call
         self.words_per_second = 3.0                                             # Sec to wait till speech
         
-    def validate_reqs(self):
+    def _validate_reqs(self):
         """
         Validates all required vars/objs are not None.
         """
