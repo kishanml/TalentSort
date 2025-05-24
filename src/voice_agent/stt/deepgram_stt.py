@@ -30,21 +30,30 @@ class TranscriptCollector:
         
         
 class DeepgramSTT:
-    """Deepgram's Speech-To-Text"""
+    """Deepgram's Speech-To-Text Component"""
     
     def __init__(self, cfg:dict = None, llm_callback = None, 
         irpt_callback = None
     ):
         self._api_key = os.getenv("DEEPGRAM_API_KEY")
         self._cfg     = cfg                                                   # Deepgram STT configs
-        self.validate_reqs()                                                  # Validate all required vars/objs
+        self._validate_reqs()                                                 # Validate all required vars/objs
         self.stt_connection       = None                                      # STT connection
         self.options              = LiveOptions(**self._cfg)                  # STT configurations
         self.keepalive_task       = None                                      # STT connection keep alive message sender/5sec
         self.transcript_collector = TranscriptCollector()                     # Interim transcription collector/pool 
         self.llm_callback         = llm_callback                              # LLM callback
-        self.irpt_callback        = irpt_callback                             # STT Interuption callback
-        self.interuption_flag     = True     
+        self.irpt_callback        = irpt_callback                             # LLM + TTS Interuption callback
+        self.interuption_flag     = True    
+        
+    def _validate_reqs(self):
+        """
+        Validates all required vars/objs are not None.
+        """
+        if not self._api_key:
+            raise ValueError("DEEPGRAM_API_KEY environment variable not found!")
+        if not self._cfg:
+            raise ValueError("Deepgram STT configurations can't be None!")
 
     # STT WS Event handlers 
     async def _on_speech_started(self, _, speech_started, **kwargs):
@@ -86,8 +95,8 @@ class DeepgramSTT:
         config = DeepgramClientOptions(
             options={"keepalive": "true", 'auto_flush_reply_delta': 8}
         )
-        self.client = DeepgramClient(self._api_key, config)
-        self.stt_connection = self.client.listen.asyncwebsocket.v("1")
+        client = DeepgramClient(self._api_key, config)
+        self.stt_connection = client.listen.asyncwebsocket.v("1")
         self.stt_connection.on(
             LiveTranscriptionEvents.SpeechStarted, self._on_speech_started
         )
@@ -143,7 +152,7 @@ class DeepgramSTT:
             try:
                 await self.keepalive_task
             except asyncio.CancelledError:
-                logger.error("Keepalive task was successfully cancelled.")
+                logger.info("Keepalive task was successfully cancelled.")
             except Exception as e:
                 logger.error(e)
 
@@ -156,12 +165,3 @@ class DeepgramSTT:
         self.keepalive_task = None
         self.stt_connection = None
         logger.info("Deepgram STT connection closed!")
-
-    def validate_reqs(self):
-        """
-        Validates all required vars/objs are not None.
-        """
-        if not self._api_key:
-            raise ValueError("DEEPGRAM_API_KEY environment variable not found!")
-        if not self._cfg:
-            raise ValueError("Deepgram STT configurations can't be None!")
