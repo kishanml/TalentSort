@@ -1,5 +1,4 @@
 import os
-import time
 import json
 from dataclasses import dataclass
 from enum import Enum
@@ -12,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 GOOGLE_OPENAI_COMPATIBLE_API = "https://generativelanguage.googleapis.com/v1beta/openai/"
-
 GPTMessageRole = Enum("MessageRole", ["system", "user", "assistant", "function"])
 
 @dataclass
@@ -28,7 +26,7 @@ def call_function(name, args):
     """
     LLM helper for calling the tools
     """
-        
+    
     if name == "hangup_call":
         return hangup_call()
 
@@ -37,9 +35,8 @@ class OpenAILLM:
     Generaic LLM client for OpenAI & Google Gemini
     """
     def __init__(self, 
-        provider: str, model_name: str, cfg: Dict[str, Any], 
-        tts_callback: Callable = None, tts_flush_callback: Callable = None, 
-        tools = None
+        provider:str, model_name:str, cfg:Dict[str, Any], tools = None,
+        tts_callback:Callable = None, tts_flush_callback:Callable = None, 
     ) -> None:
         self._api_key            = self._get_api_key(provider)
         self._base_url           = self._get_base_url(provider)
@@ -88,14 +85,17 @@ class OpenAILLM:
                 raise ValueError(message)
 
     def _add_msg_to_history(self, role:str, content:str) -> None:
-        """Keeps conversations in history"""
-        message = {"role": role, "content": content}
-        self.st_history.append(message)
+        """
+        Keeps conversations in history
+        """
+        self.st_history.append({"role": role, "content": content})
 
     def _update_prompt(self, prompt: str) -> None:
-        """Update the system prompt"""
-        self.st_history.append(GPTMessage(GPTMessageRole.system, prompt).to_api())
-
+        """
+        Update the system prompt
+        """
+        self.st_history.append({"role": "system", "content": prompt})
+        
     async def get_llm_response(self, user_msg: str):
         """Get the LLM response for a user message."""
         
@@ -128,7 +128,7 @@ class OpenAILLM:
             async for chunk in chat_stream:
                 if self._needs_interrupt:
                     self._needs_interrupt = False
-                    complete_response.append(" ... < INTERUPTION >")
+                    complete_response.append(" <|USER INTERUPTION|> ")
                     break
 
                 delta = chunk.choices[0].delta
@@ -141,9 +141,10 @@ class OpenAILLM:
                         else:
                             function_calls[index].function.arguments += tool_call.function.arguments
                 elif delta.content:
-                    complete_response.append(delta.content)
+                    chunk = delta.content
+                    complete_response.append(chunk)
                     if self._tts_callback:
-                        await self._tts_callback(delta.content)
+                        await self._tts_callback(chunk)
 
         if complete_response:
             await self._tts_flush_callback()
@@ -208,16 +209,20 @@ class OpenAILLM:
         return "".join(complete_response)
 
     async def interrupt(self):
-        """Interrupt a currently streaming response (if there is one)."""
+        """
+        Interrupt a currently streaming response (if there is).
+        """
         if self._producing_response:
             self._needs_interrupt = True
 
+
 async def process_llm_results(chatgpt_result):
-    """Process the results of a LLM call and yield them as a stream of messages."""
+    """
+    Process the results of a LLM call and yield them as a stream of messages.
+    """
     full_response = ""
     async for result in chatgpt_result:
         full_response += result
-    logger.info(f"agentFinalSpeech: {full_response}")
     return full_response
 
 
