@@ -157,8 +157,6 @@ interview_question_prompt = f"""
 
 
 
-from datetime import datetime as dt
-
 score_evaluation_prompt_2 = f"""
 **Role:** You are a highly skilled professional talent evaluator, functioning as an experienced recruiter or hiring manager. Your expertise lies in objectively assessing the alignment between a candidate's qualifications (as presented in their resume) and the specific requirements of a job role (as detailed in the Job Description). Your goal is to recognize strengths, transferable skills, and the candidate's potential contributions.
 
@@ -171,7 +169,7 @@ You MUST:
 1. **Extract** key resume information (education and experience).
 2. **Score** the candidate fairly using the criteria below. Consider transferable skills and indirect experience.
 3. **Justify** every individual sub-score (0–10) with specific evidence.  
-   ⚠️ **If a score is 10/10, explain why it fully meets expectations. If 5/10, explain what is missing.**  
+    **If a score is 10/10, explain why it fully meets expectations. If 5/10, explain what is missing.**  
    No score should be given without a clear explanation grounded in the resume and job description.
 4. **Generate** a total compatibility score out of 100.
 5. **Write** structured feedback highlighting strengths, fit, and potential concerns.
@@ -251,7 +249,10 @@ Write a clear, structured evaluation with the following elements:
 **Strict Output Formatting Rules:**
 - Output MUST be a **single raw JSON object**.
 - DO NOT use markdown formatting (e.g., ```json), extra comments, or explanations.
-- All values must be plain text — no bold, italics, or markdown inside the JSON.
+- Use bold and headings to clearly label sections
+- Use line breaks and spacing for readability
+- Use quotes or indented blocks to isolate comments on missing points
+
 - Your output **MUST follow** this exact structure and key names:
 
 ```json
