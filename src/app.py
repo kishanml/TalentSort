@@ -17,30 +17,22 @@ st.set_page_config(
     layout="wide",
 )
 
-theme_choice = st.sidebar.selectbox("Choose Theme", ["Dark", "Light"])
-
-if theme_choice == "Dark":
-    bg_color = "#0E1117"
-    text_color = "white"
-    input_bg = "#262730"
-else:
-    bg_color = "white"
-    text_color = "black"
-    input_bg = "#f0f2f6"
 
 # --- Custom Styles ---
 st.markdown(f"""
 <style>
 .stApp {{
-    background-color: {bg_color};
-    color : {text_color};
+    background-color: var(--background-color);
+    color: var(--text-color);
 }}
+
 .stTextInput > label, .stFileUploader label, .stTextArea label {{
     font-weight: bold;
-    color: {text_color};
+    color: var(--text-color);
 }}
+
 .stButton>button {{
-    background-color: #1E88E5;
+    background-color: var(--primary-color);
     color: white !important;
     font-weight: bold;
     padding: 10px 20px;
@@ -52,13 +44,13 @@ st.markdown(f"""
     width: 50%;
     transition: background-color 0.3s ease;
 }}
+
 .stButton>button:hover {{
     background-color: #1565C0;
 }}
 
-/* Form Submit Button Fix */
 button[kind="primary"] {{
-    background-color: #1E88E5 !important;
+    background-color: var(--primary-color) !important;
     color: white !important;
     font-weight: bold;
     padding: 10px 20px;
@@ -69,31 +61,36 @@ button[kind="primary"] {{
     width: 100%;
     transition: background-color 0.3s ease;
 }}
+
 button[kind="primary"]:hover {{
     background-color: #1565C0 !important;
 }}
 
 h1 {{
-    color: #1E88E5;
+    color: var(--primary-color);
     text-align: center;
     margin-bottom: 20px;
 }}
+
 h2 {{
     margin-top: 20px;
     margin-bottom: 10px;
-    border-bottom: 2px solid #1E88E5;
+    border-bottom: 2px solid var(--primary-color);
     padding-bottom: 5px;
 }}
+
 .stTextArea, .stFileUploader, .stTextInput {{
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #cccccc;
-    background-color: {input_bg};
+    background-color: var(--secondary-background-color);
     box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     margin-bottom: 15px;
 }}
 </style>
 """, unsafe_allow_html=True)
+
+
 
 
 st.title('TalentSort')
@@ -135,7 +132,7 @@ with st.form("talent_evaluation_form"):
             placeholder="e.g., 'Prioritize cloud computing (AWS/Azure) experience', 'Emphasize leadership examples and project management skills', 'Assess Python proficiency'.",
             help="Provide any specific keywords, skills, or attributes to emphasize during the resume and JD matching."
         )
-
+        
         interview_questions_extra_prompt = st.text_area(
             label="Guidelines for interview questions (Optional):",
             height=120,

@@ -21,19 +21,21 @@ def evaluate_candidate(job_description, resume_str,additional_instruction="Evalu
         system_prompt,
         "Job Description:",
         job_description,
-        "Candidate Resume:",
+        "\n--- Candidate Resume ---\n",
         resume_str,
-        "Additional Instructions:",
-        additional_instruction
+        "\n--- ADDITIONAL INSTRUCTIONS (CRITICAL) ---\n",
+        additional_instruction,
+         "\n--- END OF INSTRUCTIONS ---\n"
     ]
     response = client.models.generate_content(
         model="gemini-2.0-flash",
         contents=prompt_parts,
-        
         config={
             'response_mime_type': 'application/json',
             'response_schema': EvaluationResult,
-            'temperature': 0.2,
+            'temperature': 0.1,
+            "top_p":0.9,
+            "top_k":40
         },
     )
     return response

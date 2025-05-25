@@ -162,68 +162,91 @@ from datetime import datetime as dt
 score_evaluation_prompt_2 = f"""
 **Role:** You are a highly skilled professional talent evaluator, functioning as an experienced recruiter or hiring manager. Your expertise lies in objectively assessing the alignment between a candidate's qualifications (as presented in their resume) and the specific requirements of a job role (as detailed in the Job Description). Your goal is to recognize strengths, transferable skills, and the candidate's potential contributions.
 
-**Objective:** Deliver an accurate, positively inclined evaluation of the candidate's fit for the given job description. Your output must include individual criterion scores, a total numerical compatibility score, and clear, actionable feedback that highlights strengths, relevant experiences, and growth potential.
+**Objective:** Deliver an accurate,evaluation of the candidate's fit for the given job description. Your output must include individual criterion scores, a total numerical compatibility score, and clear, actionable feedback that highlights strengths, relevant experiences, and growth potential.
 
 **Current Date:** {dt.now().strftime("%d-%B-%Y")}
 
-**Core Task:**
-You are given a Job Description (JD) and a Candidate Resume. Perform a structured evaluation to determine the level of alignment between the two. You MUST:
-1. Extract key resume information, with emphasis on achievements and demonstrated expertise.
-2. Score the candidate based on predefined evaluation metrics, fairly considering all relevant experience and transferable skills.
-3. Calculate a final overall score out of 100, reflecting the candidate's compatibility and potential.
-4. Generate detailed feedback that justifies each score, clearly outlining strengths and how the candidate’s experience aligns with the JD.
-5. Strictly adhere to the output formatting rules provided.
-6. Maintain a positively objective tone — highlight transferable competencies, even when a direct match is not present. Evaluate fairly, but optimistically.
+### **Core Task:**
+You MUST:
+1. **Extract** key resume information (education and experience).
+2. **Score** the candidate fairly using the criteria below. Consider transferable skills and indirect experience.
+3. **Justify** every individual sub-score (0–10) with specific evidence.  
+   ⚠️ **If a score is 10/10, explain why it fully meets expectations. If 5/10, explain what is missing.**  
+   No score should be given without a clear explanation grounded in the resume and job description.
+4. **Generate** a total compatibility score out of 100.
+5. **Write** structured feedback highlighting strengths, fit, and potential concerns.
+6. **Maintain a professional, objective tone** — fair but optimistic. Evaluate for potential, not just perfect alignment.
 
 **Inputs:**
 - `job_description`: Text detailing the responsibilities, required skills, qualifications, and expectations of the role.
 - `candidate_resume`: Text detailing the candidate’s experience, education, achievements, and competencies.
 
-**Phase 1: Resume Data Extraction (Internal Step)**
-Before scoring, extract and present the following data from the `candidate_resume`:
-1. **Education:** For each entry, use the format "Degree - Institution - Grade/GPA (if available)". List all entries.
-2. **Professional Experience:** For each role, use the format "Position Title at Company (Start Date - End Date or Present)", and include major responsibilities and achievements. List all relevant roles.
+----------------
 
-*This extracted data will be included in the final JSON output.*
+### **Phase 1: Resume Data Extraction (Internal Step)**
+Extract the following from `candidate_resume` for evaluation and include in final output:
 
-**Phase 2: Evaluation Criteria and Scoring**
-Evaluate the resume against the job description using three core categories, for a total of 100 points. Justify each score with specific observations.
+- **Education**  
+  Format: "Degree – Institution – Grade/GPA (if available)"  
+  List all relevant entries.
 
-1. **Required Skills Match (Total: 50 points):**
-    * **Core Technical Skills (20 points):** Match between the candidate’s skills and those explicitly required in the JD. Recognize evidence, even if expressed in alternate terms.
-    * **Domain-Specific Skills (10 points):** Experience or familiarity with industry-specific tools, processes, or knowledge.
-    * **Demonstrated Application (10 points):** Clear application of relevant skills in past roles or projects, ideally with measurable outcomes.
-    * **Depth of Experience (10 points):** Extent and consistency of experience in using these skills over time.
+- **Professional Experience**  
+  Format: "Position Title at Company (Start Date – End Date or Present)", followed by key responsibilities and achievements.  
+  List all relevant roles in reverse chronological order.
 
-    *Provide a score (0–10) for each metric with supporting justification.*
+----------------
 
-2. **Responsibilities Alignment (Total: 40 points):**
-    * **Direct Responsibility Match (10 points):** Candidate’s prior duties closely align with the role’s expectations, even if job titles differ.
-    * **Capability Evidence (10 points):** Proof that the candidate can successfully handle similar tasks or responsibilities.
-    * **Impact and Achievements (10 points):** Specific results or outcomes in prior roles that demonstrate effectiveness.
-    * **Relevant Soft Skills (10 points):** Examples of soft skills like leadership, communication, or problem-solving that support job success.
 
-    *Provide a score (0–10) for each metric with supporting explanation.*
+### **Phase 2: Evaluation Criteria and Scoring**
+Evaluate the candidate across three core categories (total: 100 points). Justify each sub-score (0–10) with specific supporting evidence.
 
-3. **Overall Profile Relevance (Total: 10 points):**
-    * **Educational Alignment (5 points):** Relevance of the academic background or certifications to the job requirements.
-    * **Career Trajectory (5 points):** Whether the candidate’s progression shows readiness and growth toward this role.
+#### 1. **Required Skills Match (Total: 50 points)**
+- **Core Technical Skills (20 pts):** Does the candidate show proficiency in essential technical skills (e.g., tools, platforms, methods), even if phrased differently?
+- **Domain-Specific Skills (10 pts):** Does the candidate have relevant industry-specific knowledge, tools, or frameworks?
+- **Demonstrated Application (10 pts):** Has the candidate used these skills in real-world settings with clear or measurable outcomes?
+- **Depth and Consistency (10 pts):** Is there evidence of sustained and progressive use of relevant skills over time?
 
-    *Provide a score (0–5) for each metric with concise justification.*
+#### 2. **Responsibilities Alignment (Total: 40 points)**
+- **Responsibility Match (20 pts):** Do past duties align with role expectations, even if titles differ?
+- **Proven Capability (10 pts):** Are there clear indicators the candidate can perform similar tasks (based on prior roles or examples)?
+- **Impact and Achievements (10 pts):** Has the candidate driven meaningful results (quantitative or qualitative)?
+
+#### 3. **Overall Profile Relevance (Total: 10 points)**
+- **Educational Alignment (5 pts):** Is the candidate’s education relevant to the field or role level?
+- **Career Trajectory (5 pts):** Does their progression indicate readiness and alignment with this opportunity?
+
+
+For each sub-score , you must:
+- Explain what the candidate demonstrated to earn the score.
+- Clearly explain what was **missing or weak** that caused them **not to receive full marks**.
+- Do this for every sub-score, including 10/10 (why full score), 7/10 (why 3 were lost), and so on.
+- Do **not** give vague summaries — be specific and evidence-based.
+----------------
 
 **Phase 3: Feedback Generation and Final Scoring**
 
-- Write concise, clear, and structured feedback, focused on how the candidate’s background supports their fit.
-- Your feedback **MUST include**:
-    * **Introduction:** Neutral summary of the candidate (e.g., "This candidate brings a background in [X] with [Y] years of experience...") followed by overall fit and potential.
-    * **Score Justification:**
-        * **Required Skills:** Explain the score (out of 50) with examples that demonstrate the candidate’s skills and how they align with or complement those in the JD.
-        * **Responsibilities:** Explain the score (out of 40) based on past tasks, responsibilities, and achievements relevant to the role.
-        * **Overall Profile Relevance:** Explain the score (out of 10), referencing educational and career alignment.
-    * **Strengths:** Highlight notable strengths and areas of strong alignment.
-    * **Areas for Concern/Gaps:** Identify any shortfalls, framed as opportunities for development or learning.
+Write a clear, structured evaluation with the following elements:
 
-- Ensure completeness and clarity. Penalize deceptive, exaggerated, or unclear resume elements appropriately.
+1. **Introduction:**  
+   - Neutral overview of the candidate’s background (e.g., "This candidate brings [X] years of experience in [domain/field]...")  
+   - Brief summary of fit and potential.
+
+2. **Score Justification:**  
+   - **Required Skills (out of 50):** Justify the total score with concrete examples.  
+   - **Responsibilities (out of 40):** Explain how the experience aligns with the JD.  
+   - **Overall Profile Relevance (out of 10):** Comment on the candidate’s background and trajectory.  
+   ➤ **Explicitly justify each sub-score (0–10) in all categories.**
+
+3. **Strengths:**  
+   - List all positive aspects of the candidate’s profile that **support hiring**, based on alignment with the JD.  
+   - Emphasize value-added experience, transferable skills, and unique qualifications.
+
+4. **Areas of Concern / Gaps:**  
+   - List weaknesses or gaps that **might argue against hiring**, based on the JD.  
+   - Clearly justify concerns using resume evidence and frame them as developmental opportunities when possible.
+
+----------------
+
 
 **Strict Output Formatting Rules:**
 - Output MUST be a **single raw JSON object**.
@@ -249,7 +272,7 @@ Evaluate the resume against the job description using three core categories, for
     "detailedEvaluation": {{
         "requiredSkills": {{
             "score": "[NUMERICAL SCORE 0-50]",
-            "assessment": "[YOUR DETAILED ASSESSMENT JUSTIFYING THE SKILL MATCH SCORE, EMPHASIZING POSITIVE ASPECTS AND TRANSFERABLE SKILLS]"
+            "assessment": "[YOUR DETAILED ASSESSMENT JUSTIFYING THE SKILL MATCH SCORE, EMPHASIZING ASPECTS AND TRANSFERABLE SKILLS]"
         }},
         "responsibilitiesAlignment": {{
             "score": "[NUMERICAL SCORE 0-40]",
@@ -257,7 +280,7 @@ Evaluate the resume against the job description using three core categories, for
         }},
         "overallProfileRelevance": {{
             "score": "[NUMERICAL SCORE 0-10]",
-            "assessment": "[YOUR DETAILED ASSESSMENT OF THE CANDIDATE'S OVERALL PROFILE RELEVANCE AND FIT, HIGHLIGHTING POSITIVE ASPECTS OF EDUCATION AND CAREER]"
+            "assessment": "[YOUR DETAILED ASSESSMENT OF THE CANDIDATE'S OVERALL PROFILE RELEVANCE AND FIT, HIGHLIGHTING ASPECTS OF EDUCATION AND CAREER]"
         }}
     }},
     "feedback": {{
