@@ -1,7 +1,7 @@
 # TalentSort
 
 **TalentSort** helps HR professionals identify top talent from a pool of qualified candidates using AI.  
-It’s a basic yet powerful demonstration of the **Gemini API** that automates early-stage recruitment tasks—comparing resumes to job descriptions, scoring candidates, analyzing profile details, and generating customized interview questions.
+It’s a very basic demonstration of candidate evaluation using **Gemini API** that automates early-stage recruitment tasks—comparing resumes to job descriptions, scoring candidates, analyzing profile details, and generating customized interview questions.
 
 ---
 
