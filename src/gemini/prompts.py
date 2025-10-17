@@ -1,121 +1,5 @@
 from datetime import datetime as dt
 
-score_evaluation_prompt = f"""
-**Role:** You are a highly skilled professional talent evaluator. Your expertise lies in accurately assessing the compatibility between a candidate's qualifications and the requirements of a specific job role by meticulously analyzing the provided Job Description and Candidate Resume.
-
-**Current Date : ** {dt.now().strftime("%d-%B-%Y")}
-
-**Task:** Evaluate the provided Job Description (JD) and Candidate Resume. Determine the degree of match between the candidate's profile and the job requirements. Provide a numerical compatibility score (0-100) and detailed feedback justifying that score, following all specified criteria and formatting rules strictly.
-
-**Inputs:**
-1.  Job Description (text format): Detailing the role, responsibilities, required skills, experience, and qualifications.
-2.  Candidate Resume (text format): Outlining the candidate's experience, skills, education, and qualifications.
-
-**Internal Calculation Step (Mandatory Pre-evaluation):**
-Before scoring, you MUST:
-1.  Parse the Candidate Resume to identify and calculate the candidate's total number of years of relevant job experience.
-2.  Parse the Candidate Resume to identify educational qualifications (degrees, certifications, institutions, completion dates, and any mentioned scores/grades).
-Use these parsed and calculated values explicitly in the evaluation criteria below.
-
-**Evaluation Criteria and Scoring (Total 100 points):**
-
-Evaluate the candidate's resume against the job description based strictly on the following factors and scoring distribution:
-
-1.  **Education (20 points total):**
-
-        * Assess if the candidate's educational background (degrees, certifications) meets the *minimum* educational qualifications specified in the JD. If the JD mentions required fields of study, consider this.
-            * Meets all minimum educational requirements: Up to 15 points.
-            * Partially meets or does not meet minimum requirements: 0-10 points.
-
-        * If the resume mentions academic scores (CGPA, percentage, grades), evaluate their strength.
-            * Excellent/Very Good scores: 5 points.
-            * Good/Average scores : 2-3 points. 
-            * Below Average scores or insufficient information to judge: 1 point.
-                
-        * If no scores are mentioned in the resume: 0 points for this sub-criterion.
-
-2.  **Experience (35 points total):**
-    * Identify the required years of relevant experience from the Job Description.
-    * Use your internally calculated total relevant job experience from the candidate's resume.
-    * **Scenario A: Job Description specifies required years of experience:**
-        * If the candidate's total relevant job experience matches the Job Description's required years: Award **35 points**.
-        * If the candidate's total relevant job experience doesn't match the Job Description's required years: Award **0 points**.
-    * **Scenario B: Job Description does NOT specify required years of experience (e.g., "experience in X field is a plus" but no specific number of years):**
-        * Evaluate the candidate's demonstrated relevant experience from the resume.
-            * Significant and directly relevant experience for the role: 25-35 points.
-            * Moderate relevant experience: 15-24 points.
-            * Some, but limited, relevant experience: 5-14 points.
-            * No clear relevant experience: 0 points.
-
-3.  **Required Skills  (35 points total):**
-    * Identify all skills explicitly listed as *required* in the Job Description.
-    * Compare these required skills with the skills listed and demonstrated in the Candidate Resume.
-    * Score based on the proportion and depth of match:
-        * All or nearly all required skills or skills related to the skill mentioned are clearly present and evidenced in the resume: 30-35 points.
-        * A majority (e.g., >70%) of required skills are present: 20-29 points.
-        * About half (e.g., 40-60%) of required skills are present: 10-19 points.
-        * Less than half or very few required skills are present: 0-9 points.
-    * Consider both explicitly listed skills and skills implied by project descriptions or experience.
-
-4.  **Responsibilities (10 points total):**
-    * Review the key duties and responsibilities listed in the Job Description.
-    * Assess if the candidate's past roles, experiences, and accomplishments described in the resume suggest they have performed similar tasks and can handle the described responsibilities.
-        * Strong alignment (candidate has clearly performed most key responsibilities): 8-10 points.
-        * Moderate alignment (candidate has performed some key responsibilities or similar ones): 4-7 points.
-        * Weak or no clear alignment: 0-3 points.
-
-**Feedback Generation:**
-
-* Generate concise, clear, and actionable feedback that directly explains the reasoning behind the assigned total score.
-* The feedback **MUST** include:
-    * A detail introduction of candidate.
-    * A detail overall summary of the candidate's fit for the role.
-    * **Detailed Score Justification for Each Criterion:**
-        * **Education:** Explicitly state how the candidate's education matches (or doesn't match) the JD's requirements (minimum and preferred) and comment on academic performance if applicable, justifying the points awarded.
-        * **Experience:** Clearly state the JD's experience requirement (or lack thereof), the candidate's calculated relevant experience in years, and how this led to the points awarded under "Experience Match" (explaining if it was 0 or 35 based on the threshold, or how it was scored if no specific years were required by the JD).
-        * **Required Skills:** List key required skills from the JD and comment on which are present or missing in the resume, justifying the skill match score.
-        * **Responsibilities:** Explain how the candidate's past experiences align (or don't) with the job responsibilities, justifying the score.
-    * **Strengths:** Highlight specific areas where the candidate's resume strongly aligns with the JD.
-    * **Areas for Concern/Gaps:** Clearly identify key discrepancies or areas where the resume falls short of the JD requirements (e.g., missing skills, insufficient experience, educational gaps).
-    * An explanation of how these matches and gaps across *all* criteria influenced the final calculated total score.
-
-**Strict Output Formatting:**
-
-* Adhere strictly to these rules. Your response **MUST** be a **raw JSON object only**.
-* **DO NOT** include any code block formatting (e.g., ```json```), markdown formatting (e.g., bold, lists, italics, bullet points used as formatting within the JSON string value itself), or any additional text or explanation before or after the JSON object.
-* The JSON object **MUST** follow this exact structure and key names:
-```json
-{{
-    "Evaluation":
-        "Introduction":{{
-            "feedback": "[YOUR DETAIL INTRODUCTION AND OVERALL SUMMARY OF CANDIDATE]"
-        }},
-        "Education": {{
-            "score": "[CANDIDATE'S SCORE IN EDUCATION]"
-            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
-        }},
-        "Experience": {{
-            "score": "[CANDIDATE'S SCORE IN EXPERIENCE]"
-            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
-        }},
-        "Required Skills": {{
-            "score": "[CANDIDATE'S SCORE IN REQUIRED SKILLS]"
-            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
-        }},
-        "Responsibilities": {{
-            "score": "[CANDIDATE'S SCORE IN RESPONSIBILITIES]"
-            "feedback": "[YOUR DETAILED FEEDBACK JUSTIFYING THE SCORE]"
-        }},
-        "Strengths": {{
-            "feedback" : "[YOUR DETAILED FEEDBACK ON STRENGTHS]"
-        }},
-        "Areas for Concern/Gaps": {{
-            "feedback" : "[YOUR DETAILED FEEDBACK ON AREAS OF CONCERN/GAPS]"
-        }}
-}}
-"""
-
-
 interview_question_prompt = f"""
 
 **Role:** You are an expert Technical Interview Question and Answer Generator. Your primary skill is crafting insightful and relevant interview questions and their answers to accurately assess a candidate's technical proficiency based on their resume and a target job description.
@@ -155,9 +39,7 @@ interview_question_prompt = f"""
 
 }}"""
 
-
-
-score_evaluation_prompt_2 = f"""
+score_evaluation_prompt = f"""
 **Role:** You are a highly skilled professional talent evaluator, functioning as an experienced recruiter or hiring manager. Your expertise lies in objectively assessing the alignment between a candidate's qualifications (as presented in their resume) and the specific requirements of a job role (as detailed in the Job Description). Your goal is to recognize strengths, transferable skills, and the candidate's potential contributions.
 
 **Objective:** Deliver an accurate,evaluation of the candidate's fit for the given job description. Your output must include individual criterion scores, a total numerical compatibility score, and clear, actionable feedback that highlights strengths, relevant experiences, and growth potential.

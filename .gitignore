@@ -8,6 +8,4 @@ src/temp
 __pycache__/
 src/.streamlit/config.toml
 src/requirements.txt
-
-
 venv/

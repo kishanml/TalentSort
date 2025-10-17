@@ -1,20 +1,15 @@
 
 import os
 from google import genai
-from .prompts import interview_question_prompt,score_evaluation_prompt_2
+from .prompts import interview_question_prompt,score_evaluation_prompt
 from .models import EvaluationResult,InterviewQuestions
 
-# from dotenv import load_dotenv
-# load_dotenv()
-
-#TODO : Will add this to streamlit secrets later. Dont copy it pls. 
-# GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
-GEMINI_API_KEY="AIzaSyDcU_qZ1VbWOoRogappbV0NtDTn_xzhlOw"
+from dotenv import load_dotenv
+load_dotenv()
 
 
-
-def evaluate_candidate(job_description, resume_str,additional_instruction="Evaluate this candidate !", system_prompt=score_evaluation_prompt_2) -> str:
-    client = genai.Client(api_key=GEMINI_API_KEY)
+def evaluate_candidate(job_description, resume_str,additional_instruction="Evaluate this candidate !", system_prompt=score_evaluation_prompt) -> str:
+    client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
     
     prompt_parts = [
@@ -43,7 +38,7 @@ def evaluate_candidate(job_description, resume_str,additional_instruction="Evalu
 
 
 def generate_interview_questions(job_description, resume_str,system_prompt=interview_question_prompt,additional_instruction="Generate well suited questions.") -> str:
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
 
     
 
