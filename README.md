@@ -18,38 +18,4 @@ It’s a very basic demonstration of candidate evaluation using **Gemini API** t
 ---
 
 
-## Setup Instructions
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/tal
-```
-
-### 2. Add Your Gemini API Key
-
-Create a .env file in the root directory and add:
-```bash
-GEMINI_API_KEY=your_api_key_here
-```
-
-### 3. Install Dependencies
-
-We recommend using a virtual environment:
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Run the App
-
-```bash
-streamlit run app.py
-```
-
-## Preview
-
-
-<img width="1900" height="1051" alt="Screenshot from 2025-10-17 15-07-14" src="https://github.com/user-attachments/assets/1e9cf2b9-c283-428a-a902-22d2840de879" />
-
-
+### Streamlit deployed link :  [Link](https://talentsort-v1.streamlit.app/)
